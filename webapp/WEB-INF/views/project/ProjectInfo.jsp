@@ -95,6 +95,30 @@
 			}
 		})
 	});
+	$(function() {
+		$("#button").click(function() {
+			var proImage =$("#proImage").val();
+			if(proImage!=''){
+				var id =$("#projectid").val();
+				action = "/cccrm/project/download"
+				form = $("<form></form>")
+				form.attr('action', action)
+				form.attr('method', 'post')
+				forminput = $("<input></input>")
+				forminput.attr('type','text')
+				forminput.attr('name','proImage')
+				forminput.attr('value',proImage)
+				form.append(forminput)
+				forminput2 = $("<input></input>")
+				forminput2.attr('type','text')
+				forminput2.attr('name','id')
+				forminput2.attr('value',id)
+				form.append(forminput2)
+				form.css('display', 'none')
+				form.submit();
+			}
+		})
+	});
 </script>
 </head>
 <body>
@@ -326,7 +350,7 @@
 								</h2>
 								<form class="signup-form clearfix" method="post"
 									action="${path}/project/upload" enctype="multipart/form-data">
-									<input type="hidden" name="id" value="${project.id}"> <input
+									<input type="hidden"   name="id" value="${project.id}"> <input
 										type="hidden" name="FileName" value="${project.proImage}">
 									<input type="hidden" name="bargainNo"
 										value="${project.bargainNo}"> <input type="hidden"
@@ -340,7 +364,9 @@
 						</div>
 
 						<div id="bottomes">
-							<input type="button" value="下载全部">
+							<input type="hidden" id="proImage" value="${project.proImage}">
+							<input type="hidden"  id="projectid" value="${project.id}">
+							<input type="button" id="button" value="下载全部">
 						</div>
 
 					</div>

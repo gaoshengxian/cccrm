@@ -1,13 +1,22 @@
 package cn.looip.project.web;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +45,7 @@ import cn.looip.project.service.interfaces.ProjectService;
 @Controller
 @RequestMapping("/project")
 public class ProjectController {
-
+	private static final String FilePath = "/usr/local/tomcat/webapps/crm/contractImgs/";
 	@Autowired
 	private ProjectService proservice;
 
@@ -47,15 +56,18 @@ public class ProjectController {
 	}
 
 	@RequestMapping(value = "/addPro", method = RequestMethod.GET)
-	public String addProject(Model model, HttpSession session,String massage,String massages) throws UnsupportedEncodingException {
+	public String addProject(Model model, HttpSession session, String massage,
+			String massages) throws UnsupportedEncodingException {
 		session.setAttribute("mark", "project");
 		List<Customer> customer = proservice.getCustomer();
 		long i = proservice.getFinalid();
-		if(massage!=null){
-			model.addAttribute("massage", new String(massage.getBytes("ISO8859-1"), "UTF-8"));
+		if (massage != null) {
+			model.addAttribute("massage",
+					new String(massage.getBytes("ISO8859-1"), "UTF-8"));
 		}
-		if(massages!=null){
-			model.addAttribute("massages", new String(massages.getBytes("ISO8859-1"), "UTF-8"));
+		if (massages != null) {
+			model.addAttribute("massages",
+					new String(massages.getBytes("ISO8859-1"), "UTF-8"));
 		}
 		model.addAttribute("customer", customer);
 		model.addAttribute("serialNo", SerialNo.serialNo(i));
@@ -63,22 +75,22 @@ public class ProjectController {
 	}
 
 	@RequestMapping("/addPros")
-	public String addPros(Project projec,Model model) {
-		String BargainNo=projec.getBargainNo();
-		String ProName= projec.getProName();
-		if(proservice.determineProject(ProName, BargainNo)==null){
+	public String addPros(Project projec, Model model) {
+		String BargainNo = projec.getBargainNo();
+		String ProName = projec.getProName();
+		if (proservice.determineProject(ProName, BargainNo) == null) {
 			proservice.saveProject(projec);
-			if(proservice.determineProject(ProName, BargainNo)!=null){
+			if (proservice.determineProject(ProName, BargainNo) != null) {
 				model.addAttribute("massage", "添加项目成功，是否继续添加？");
-		 }
-		}else{
+			}
+		} else {
 			model.addAttribute("massages", "项目已添加，请勿重复提交");
 		}
-		
+
 		return "redirect:/project/addPro";
 
 	}
-  
+
 	@RequestMapping(value = "/projectManage", method = RequestMethod.GET)
 	public String projectManage(Model model, HttpServletRequest request,
 			HttpSession session, String mark) {
@@ -160,12 +172,13 @@ public class ProjectController {
 	}
 
 	@RequestMapping(value = "/delectPros", method = RequestMethod.GET)
-	public String delectPros(int id) {      
+	public String delectPros(int id) {
 		if (proservice.getPprogramm(id) != null) {
-			List<ProgrammerProject> ProgrammerProjects = proservice.getPprojectID(id);		
-			 for (int i = 0; i < ProgrammerProjects.size(); i++) {
-				 proservice.deletePprogrammer(ProgrammerProjects.get(i).getId());
-			 }
+			List<ProgrammerProject> ProgrammerProjects = proservice
+					.getPprojectID(id);
+			for (int i = 0; i < ProgrammerProjects.size(); i++) {
+				proservice.deletePprogrammer(ProgrammerProjects.get(i).getId());
+			}
 		}
 		proservice.delectProject(id);
 		return "redirect:/project/projectManage";
@@ -197,7 +210,7 @@ public class ProjectController {
 		Project project = proservice.getProject(id);
 		List<ProgrammerProject> Pprojects = proservice.getPproject(beginIndex,
 				pagerNum, id);
-	
+
 		int count = proservice.getNumber(id);
 		String imgnum = proservice.imgNumber(id);
 		String[] strarray = null;
@@ -238,19 +251,19 @@ public class ProjectController {
 
 	@RequestMapping("/addProgrammers")
 	public String addProgrammers(ProgrammerProject Pprojec, int status) {
-	int ProjectID= Pprojec.getProject().getId();
-	int ProgrammerID= Pprojec.getProgrammer().getId();
-	
-	if(proservice.determinePproject(ProgrammerID, ProjectID)==null){//防止表单重复提交
-		proservice.saveProgrammers(Pprojec);
-		int State = Pprojec.getProgrammer().getProgrammerStatus();
-		int projectState = status;
-		proservice.updateProjectState(Pprojec.getProject().getId(),
-				projectState);
-		proservice.updateState(Pprojec.getProgrammer().getId(), State);
-	 }
-	
-	  return "redirect:/project/addProgrammer?id="
+		int ProjectID = Pprojec.getProject().getId();
+		int ProgrammerID = Pprojec.getProgrammer().getId();
+
+		if (proservice.determinePproject(ProgrammerID, ProjectID) == null) {// 防止表单重复提交
+			proservice.saveProgrammers(Pprojec);
+			int State = Pprojec.getProgrammer().getProgrammerStatus();
+			int projectState = status;
+			proservice.updateProjectState(Pprojec.getProject().getId(),
+					projectState);
+			proservice.updateState(Pprojec.getProgrammer().getId(), State);
+		}
+
+		return "redirect:/project/addProgrammer?id="
 				+ Pprojec.getProject().getId() + "";
 
 	}
@@ -260,17 +273,16 @@ public class ProjectController {
 		int id = Pprojec.getId();
 		int pgid = Pprojec.getProgrammer().getId();
 		int pid = Pprojec.getProject().getId();
-		Integer pgids = proservice.getProgrammersID(pgid);//查询程序员最后一次项目，是否已结束，没结束返回ID
+		Integer pgids = proservice.getProgrammersID(pgid);// 查询程序员最后一次项目，是否已结束，没结束返回ID
 		proservice.deletePprogrammer(id);
 		if (proservice.getPprogrammer(id) == null) {// 判断项目还存不存在
 			if (pgids != null) {// 判断是不是最后一个项目，是则修改为闲置
 				proservice.updatePprogrammerState(pgids);
 			}
-			if (proservice.getPprogramm(pid).size()==0) {// 判断项目中有没有程序员
+			if (proservice.getPprogramm(pid).size() == 0) {// 判断项目中有没有程序员
 				proservice.updateProjectState(pid, 3);
 			}
 		}
-		
 
 		return "redirect:/project/ProjectInfo?id=" + pid + "";
 	}
@@ -330,14 +342,16 @@ public class ProjectController {
 								"yyyyMMddHHmmss");
 						String newFileName = df.format(new Date());
 						String fileNames = newFileName + pre + "." + fileExt;
-						String path = "/usr/local/tomcat/webapps/crm/contractImgs/"+ fileNames;
-//						String path = request.getSession().getServletContext()
-//								.getRealPath("/resources/contractImgs")
-//								+ "/" + fileNames;
+						String path = "/usr/local/tomcat/webapps/crm/contractImgs/"
+								+ fileNames;
+						// String path =
+						// request.getSession().getServletContext()
+						// .getRealPath("/resources/contractImgs")
+						// + "/" + fileNames;
 						File localFile = new File(path);
-						if(!localFile.exists()){//如果文件夹不存在，自动创建
+						if (!localFile.exists()) {// 如果文件夹不存在，自动创建
 							localFile.mkdirs();
-	                     }
+						}
 						file.transferTo(localFile);
 						if (FileName != null) {
 							FileName = FileName + fileNames + "*";
@@ -359,6 +373,56 @@ public class ProjectController {
 		session.removeAttribute("loginUser");
 		session.removeAttribute("mark");
 		return "redirect:/user/login";
+	}
+
+	@RequestMapping("/download")
+	public void download(String proImage,int id, HttpServletResponse response)
+			throws IOException {
+		if (proImage != "") {
+			String strArray = null;
+			strArray = proImage;
+			// 接收参数时，默认将编码转换为ISO-8859-1,将其重新转码为UTF-8
+			strArray = new String(strArray.getBytes("ISO-8859-1"), "utf-8");
+			String[] filePathArray = strArray.split("\\*");
+			String zipFileName = "product.zip";
+			response.setContentType("application/x-msdownload"); // 通知客户文件的MIME类型：
+			response.setHeader("Content-disposition", "attachment;filename="
+					+ zipFileName);
+			// 要下载的文件目录
+			ZipOutputStream zos = new ZipOutputStream(
+					response.getOutputStream());
+			for (String filePath : filePathArray) {
+				File file = new File(filePath);
+				doZip(file, zos);
+			}
+			zos.close();
+		}
+		
+	}
+
+	private void doZip(File file, ZipOutputStream zos) throws IOException {
+		if (file.exists()) {
+			if (file.isFile()) {
+				// 如果是文件，写入到 zip 流中
+				zos.putNextEntry(new ZipEntry(file.getName()));
+				FileInputStream fis = new FileInputStream(file);
+				byte[] buffer = new byte[1024];
+				int r = 0;
+				while ((r = fis.read(buffer)) != -1) {
+					zos.write(buffer, 0, r);
+				}
+				zos.flush();
+				fis.close();
+			} else {
+				// 如果是目录。递归查找里面的文件
+				String dirName = file.getName() + "/";
+				zos.putNextEntry(new ZipEntry(dirName));
+				File[] subs = file.listFiles();
+				for (File f : subs) {
+					doZip(f, zos);
+				}
+			}
+		}
 	}
 
 }
