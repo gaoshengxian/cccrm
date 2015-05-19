@@ -1,20 +1,15 @@
 package cn.looip.project.web;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -45,7 +40,6 @@ import cn.looip.project.service.interfaces.ProjectService;
 @Controller
 @RequestMapping("/project")
 public class ProjectController {
-	private static final String FilePath = "/usr/local/tomcat/webapps/crm/contractImgs/";
 	@Autowired
 	private ProjectService proservice;
 
@@ -168,7 +162,6 @@ public class ProjectController {
 	public String updatePros(Project projec) {
 		proservice.updateProject(projec);
 		return "redirect:/project/projectManage";
-
 	}
 
 	@RequestMapping(value = "/delectPros", method = RequestMethod.GET)
@@ -330,7 +323,7 @@ public class ProjectController {
 			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
 			Iterator<String> iter = multiRequest.getFileNames();
 			while (iter.hasNext()) {
-				int pre = (int) System.currentTimeMillis();
+//				int pre = (int) System.currentTimeMillis();//开始时时间
 				MultipartFile file = multiRequest.getFile(iter.next());
 				if (file != null) {
 					String myFileName = file.getOriginalFilename();
@@ -340,10 +333,11 @@ public class ProjectController {
 								fileName.lastIndexOf(".") + 1).toLowerCase();
 						SimpleDateFormat df = new SimpleDateFormat(
 								"yyyyMMddHHmmss");
-						String newFileName = df.format(new Date());
-						String fileNames = newFileName + pre + "." + fileExt;
+						String newFileName = df.format(new Date());	 
+						String fileNames = newFileName +  new Random().nextInt(1000) + "." + fileExt;
 						String path = "/usr/local/tomcat/webapps/crm/contractImgs/"
 								+ fileNames;
+//						String path = "F:/" + fileNames;
 						// String path =
 						// request.getSession().getServletContext()
 						// .getRealPath("/resources/contractImgs")
@@ -383,16 +377,17 @@ public class ProjectController {
 			strArray = proImage;
 			// 接收参数时，默认将编码转换为ISO-8859-1,将其重新转码为UTF-8
 			strArray = new String(strArray.getBytes("ISO-8859-1"), "utf-8");
-			String[] filePathArray = strArray.split("\\*");
-			String zipFileName = "product.zip";
+			String[] fileNameArray = strArray.split("\\*");
+			String zipFileName = "Image.zip";
 			response.setContentType("application/x-msdownload"); // 通知客户文件的MIME类型：
 			response.setHeader("Content-disposition", "attachment;filename="
 					+ zipFileName);
 			// 要下载的文件目录
 			ZipOutputStream zos = new ZipOutputStream(
 					response.getOutputStream());
-			for (String filePath : filePathArray) {
-				File file = new File(filePath);
+			for (String fileName : fileNameArray) {
+				String path="/usr/local/tomcat/webapps/crm/contractImgs/"+fileName;//文件路径
+				File file = new File(path);
 				doZip(file, zos);
 			}
 			zos.close();

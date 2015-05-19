@@ -6,6 +6,7 @@
 <html>
 <head>
 <title>管理员信息</title>
+<link rel="Shortcut Icon" href="../resources/img/icoimg.ico">
 <link type="text/css" rel="stylesheet" media="all" href="${path}/resources/css/global.css" />
 <link type="text/css" rel="stylesheet" media="all" href="${path}/resources/css/global_color.css" />
 <script src="${path}/resources/laydate/laydate.js"></script> 

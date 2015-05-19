@@ -8,6 +8,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CRM系统</title>
+<link rel="Shortcut Icon" href="../resources/img/icoimg.ico">
 <link rel="stylesheet" href="../resources/css/global.css"
 	type="text/css" />
 <script type="text/javascript" src="../resources/js/jquery-1.8.2.min.js"></script>

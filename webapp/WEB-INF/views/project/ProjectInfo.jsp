@@ -6,6 +6,7 @@
 <html>
 <head>
 <title>项目详情</title>
+<link rel="Shortcut Icon" href="../resources/img/icoimg.ico">
 <link type="text/css" rel="stylesheet" media="all"
 	href="../resources/css/global.css" />
 <link type="text/css" rel="stylesheet" media="all"
@@ -77,10 +78,8 @@
 			var num = 0;//上传的文件个数
 			$(filenum).each(function() {
 				if ($(this).val() != "") {
-					num = num + 1
+					num = num + 1;
 				}
-				//   alert($(this).val())
-
 			});
 			// alert(num);//1
 			var imgnummass = 8 - imgnum.val();

@@ -20,6 +20,7 @@ public class SessionFilter implements Filter {
 
 		HttpServletRequest req = (HttpServletRequest) request;
 		String uri = req.getRequestURI();// 请求的uri
+		System.out.println(uri);
 		// 是否过滤
 		boolean doFilter = false;
 		if (uri.indexOf("resources") == -1) {// resources目录的不过滤，（=-1的为不包含在resources内）
@@ -30,6 +31,7 @@ public class SessionFilter implements Filter {
 					// 从session中获取登录者实体
 					HttpSession session = req.getSession();
 					if (session.getAttribute("loginUser") == null) {
+						System.out.println("-------------");
 						// 如果session中不存在登录者实体，则弹出框提示重新登录
 						// 设置request和response的字符集，防止乱码
 						request.setCharacterEncoding("UTF-8");

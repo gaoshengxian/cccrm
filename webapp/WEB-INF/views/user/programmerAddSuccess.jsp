@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 <link rel="stylesheet" href="../resources/css/programmeraddsuccess.css"
 	type="text/css"></link>
-
+<link rel="Shortcut Icon" href="../resources/img/icoimg.ico">
 </head>
 <body>
 	<jsp:include page="/WEB-INF/views/layout/head.jsp" />
